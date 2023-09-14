@@ -1,30 +1,28 @@
+name: "Terraform Plan"
+
 trigger:
-  - main
+  branches:
+    include:
+      - main
 
-resources:
-  - repo: self
+pool:
+  vmImage: 'ubuntu-latest'
 
-variables:
-  dockerRegistryServiceConnection: "70193de8-17c3-4d45-aed9-7b6d459cb210"
-  imageRepository: "martinsutherlandazurepipelinedemo"
-  containerRegistry: "customersapp.azurecr.io"
-  dockerfilePath: "$(Build.SourcesDirectory)/Dockerfile"
-  tag: "$(Build.BuildId)"
-  appName: "Azure-test-App-Two"
-  azureSubscription: "Azure subscription 1 (12d4a125-7d4d-45ad-8101-2ba4e5ce1593)"
-  vmImageName: "ubuntu-latest"
-  uiSource: "/src"
+steps:
 
-stages:
-  - stage: Build_Terraform
-    displayName: Build Terraform
-    jobs:
-      - job: Build_Terraform
-        displayName: Build Terraform
-        pool:
-          vmImage: $(vmImageName)
-          name: pipool
-        steps:
-        - task: TerraformInstaller@1
-          inputs:
-            terraformVersion: 'latest'
+- task: TerraformInstaller@0
+  displayName: "Install Terraform"
+  inputs:
+    terraformVersion: '1.3.9'
+    terraformDownloadLocation: 'https://releases.hashicorp.com/terraform'
+
+- script: |
+    terraform init
+    terraform plan -out=terraform.tfplan
+  displayName: 'Terraform Plan'
+  
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.SourcesDirectory)/terraform.tfplan'
+    artifactName: 'terraformPlan'
+    publishLocation: 'Container'
