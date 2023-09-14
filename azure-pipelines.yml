@@ -1,0 +1,30 @@
+trigger:
+  - main
+
+resources:
+  - repo: self
+
+variables:
+  dockerRegistryServiceConnection: "70193de8-17c3-4d45-aed9-7b6d459cb210"
+  imageRepository: "martinsutherlandazurepipelinedemo"
+  containerRegistry: "customersapp.azurecr.io"
+  dockerfilePath: "$(Build.SourcesDirectory)/Dockerfile"
+  tag: "$(Build.BuildId)"
+  appName: "Azure-test-App-Two"
+  azureSubscription: "Azure subscription 1 (12d4a125-7d4d-45ad-8101-2ba4e5ce1593)"
+  vmImageName: "ubuntu-latest"
+  uiSource: "/src"
+
+stages:
+  - stage: Build_Terraform
+    displayName: Build Terraform
+    jobs:
+      - job: Build_Terraform
+        displayName: Build Terraform
+        pool:
+          vmImage: $(vmImageName)
+          name: pipool
+        steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
